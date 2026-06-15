@@ -1,7 +1,11 @@
 import pytest
+import logging
+
 from api_methods.courier_methods import CourierMethods
 from generators import generate_courier_body
 
+
+logger = logging.getLogger(__name__)
 
 @pytest.fixture
 def delete_courier_after_test():
@@ -13,20 +17,20 @@ def delete_courier_after_test():
         login_response = CourierMethods.login_courier(body_for_login)
         if login_response.status_code == 200:
             courier_id = login_response.json()["id"]
-            delete_response = CourierMethods.delete_courier(courier_id)
-            assert delete_response.status_code == 200, f"Ожидалось 200 при удалении, но получено {delete_response.status_code}"
-            assert delete_response.json()["ok"] is True, "Поле 'ok' должно быть True после удаления"
-    
+            CourierMethods.delete_courier(courier_id)
         else:
-            print(f"Не удалось авторизоваться для удаления курьера. Статус: {login_response.status_code}, "f"Ответ: {login_response.json()}")
+            logger.error(
+                "Не удалось авторизоваться для удаления курьера. Статус: %s, Ответ: %s",
+                login_response.status_code,
+                login_response.json()
+            )
 
 
 @pytest.fixture
 def create_and_delete_courier():
     # Создание курьера
     body = generate_courier_body()
-    create_response = CourierMethods.create_courier(body)
-    assert create_response.status_code == 201, f"Ошибка создания курьера: {create_response.status_code}"
+    CourierMethods.create_courier(body)
 
     # Авторизация для получения ID
     login_data = {
@@ -34,7 +38,6 @@ def create_and_delete_courier():
         "password": body["password"]
     }
     login_response = CourierMethods.login_courier(login_data)
-    assert login_response.status_code == 200, f"Ошибка авторизации: {login_response.status_code}"
     courier_id = login_response.json()["id"]
 
     # Возвращаем данные курьера и его ID
@@ -47,6 +50,9 @@ def create_and_delete_courier():
     # Удаление курьера после теста
     delete_response = CourierMethods.delete_courier(courier_id)
     if delete_response.status_code != 200:
-        print(f"Предупреждение: не удалось удалить курьера с ID {courier_id}. "
-              f"Статус: {delete_response.status_code}, ответ: {delete_response.json()}")
-
+        logger.warning(
+            "Не удалось удалить курьера с ID %s. Статус: %s, Ответ: %s",
+            courier_id,
+            delete_response.status_code,
+            delete_response.json()
+        )

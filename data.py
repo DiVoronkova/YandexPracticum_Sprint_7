@@ -5,4 +5,3 @@ class DataForLogin:
         "login": "ninja",
         "password": "1234"
     }
-

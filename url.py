@@ -6,3 +6,4 @@ class URL:
     LOGIN_COURIER=f"{BASE_URL}/api/v1/courier/login"
     CREATE_ORDER=f"{BASE_URL}/api/v1/orders"
     ORDER_LIST=f"{BASE_URL}/api/v1/orders"
+    

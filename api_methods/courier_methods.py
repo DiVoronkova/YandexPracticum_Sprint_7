@@ -19,5 +19,3 @@ class CourierMethods:
     @allure.step('Удалить курьера')
     def delete_courier(courier_id):
         return requests.delete(url=f"{URL.CREATE_COURIER}/{courier_id}")
-
-    

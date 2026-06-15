@@ -14,3 +14,4 @@ class OrderMethods:
     @allure.step('Получить список заказов')
     def get_order_list():
         return requests.get(url=URL.ORDER_LIST)
+    

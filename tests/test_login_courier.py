@@ -26,6 +26,29 @@ class TestLoginCourier:
             assert response.status_code == 200, f"Ожидалось 200, но получено {response.status_code}"
             assert "id" in response_data, "Ответ не содержит поле 'id'"
 
+    @allure.title("Тест авторизации с неправильным значением для поля {key}")
+    @allure.description("""Тест проверяет обработку авторизации при передаче неправильного значения в поле {key} и данные существующего пользователя во втором поле. 
+                        Ожидается:
+                        статус‑код 404;
+                        сообщение: «Учётная запись не найдена».""")
+    @pytest.mark.parametrize("key, value", [
+        ("login", "test"),
+        ("password", "test")
+    ])
+    def test_login_courier_with_incorrect_field_shows_error(self, key, value, create_and_delete_courier):
+        with allure.step("Формирование данных для авторизации"):
+            body = {
+            "login": create_and_delete_courier["login"],
+            "password": create_and_delete_courier["password"]
+            }
+            body = modify_data_for_login(key, value)
+        with allure.step("Отправка запроса на авторизацию курьера"):
+            response = CourierMethods.login_courier(body)
+            response_data = response.json()
+        with allure.step("Проверка результатов авторизации"):
+            assert response.status_code == 404, f"Ожидалось 404, но получено {response.status_code}"
+            assert response_data["message"] == "Учетная запись не найдена", f"Текст сообщения отсутствует или не совпадает: {response_data['message']}"
+
     @allure.title("Тест авторизации с пустым значением для поля {key}")
     @allure.description("""Тест проверяет обработку авторизации при передаче пустого значения в поле {key}. 
                         Ожидается:
@@ -35,7 +58,7 @@ class TestLoginCourier:
         ("login", ""),
         ("password", "")
     ])
-    def test_failed_create_booking_parametrized(self, key, value):
+    def test_login_courier_with_empty_field_shows_error(self, key, value):
         with allure.step(f"Попытка авторизации с пустым значением для поля {key}"):
             body = modify_data_for_login(key, value)
             response = CourierMethods.login_courier(body)

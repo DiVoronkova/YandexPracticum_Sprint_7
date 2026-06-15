@@ -62,4 +62,3 @@ class TestCreateCourier:
             assert response_data["message"] == "Этот логин уже используется", f"Текст сообщения отсутствует или не совпадает: {response_data['message']}"
         with allure.step("Добавляем данные первого курьера в список для последующего удаления."):
             delete_courier_after_test.append(first_body)
-
